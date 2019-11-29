@@ -39,7 +39,7 @@ ui <- fluidPage(
     # Application title
     titlePanel("Guns in America"),
     
-    navbarPage("Navbar",
+    navbarPage("Menu",
                
                # First panel on website
                
@@ -52,6 +52,7 @@ ui <- fluidPage(
                                                 "2015" = 2015,
                                                 "2014" = 2014,
                                                 "2005" = 2005), selected = "a"),
+                        plotOutput("suicide_map"),
                         
                ),
                
@@ -94,11 +95,42 @@ server <- function(input, output) {
                                           labs(title = "Firearm Mortality by State") + 
                                           theme_map() + 
                                           labs(fill = "Death Rate per 100,000") + 
-                                          scale_fill_gradient(low = "#ffcccb", 
-                                                              high = "#CB454A") +
+                                          
+                                          # Adding the color scale 
+                                          
+                                          scale_fill_gradient(low = "#FCB4B4",
+                                                              high = "#FB0000",
+                                                              limits = c(0,25)) +
                                           labs(title = "Firearm Mortality by State",
                                                subtitle = "Firearm Death Rate Per 1000 People",
                                                caption = "Data from CDC") +
+                                          theme(legend.position = "right",
+                                                plot.title = element_text(hjust = 0.5))
+    )
+    
+    # Creating map of suicide rates in America per year
+    
+    output$suicide_map <- renderPlot(ggplot(data = map_data_app[map_data_app$year == input$year,],
+                                             mapping = aes(x = long, y = lat, group = group, fill = suicide_rate)) + 
+                                         
+                                         # Adding the neccesary aspects for the plot to look like a map 
+                                         
+                                          geom_polygon(color = "gray90", size = 0.1) +
+                                          coord_map(projection = "albers", 
+                                                    lat0 = 39, lat1 = 45) + 
+                                          
+                                          labs(title = "Suicide Rate by State") + 
+                                          theme_map() + 
+                                         
+                                         # Setting the coloring of the states with the max as the max for that category
+                                         
+                                          scale_fill_gradient(low = "#C4C5F1",
+                                                              high = "#080BBD",
+                                                              limits = c(0,30)) +
+                                          labs(title = "Suicide Rate by State",
+                                               subtitle = "Suicide Death Rate Per 1000 People",
+                                               caption = "Data from CDC",
+                                               fill = "Rate per 100,000") +
                                           theme(legend.position = "right",
                                                 plot.title = element_text(hjust = 0.5))
     )

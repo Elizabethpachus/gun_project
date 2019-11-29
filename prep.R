@@ -1,3 +1,5 @@
+# Loading necessary libraries
+
 library(tidyverse)
 library(sf)
 library(fs)
@@ -19,17 +21,9 @@ map_data <- read_csv("raw-data/final_data_map.csv")
 
 final_data <- read_csv("raw-data/final_data.csv")
 
-suicide_data <- read_csv("raw-data/suicide_by_state.csv")
-
-
-# do some arranging of the data?
-
-
 
 # Writing them out into rds files in the rds_files app
 
 write_rds(final_data, "gun_project/final_data.rds")
-
-write_rds(suicide_data, "gun_project/suicide_data.rds")
 
 write_rds(map_data, "gun_project/map_data.rds")
