@@ -1,49 +1,47 @@
+# Installing necessary libraries
+
 library(readr)
 library(markdown)
 library(shiny)
-library(ggthemes)
 library(maps)
-library(openintro)
-library(tidyverse)
-library(ggplot2)
-library(maps)
-library(ggthemes)
-library(janitor)
-library(openintro)
-library(tidyverse)
-library(tidyverse)
 library(sf)
 library(fs)
 library(ggplot2)
-library(maps)
 library(ggthemes)
-library(janitor)
 library(openintro)
 library(scales)
 library(infer)
-library(readr)
 library(broom)
 library(ggthemes)
 library(mapdata)
 library(mapproj)
 library(tidyverse)
 
+# Reading in the RDS files 
 
 map_data_app <- read_rds("map_data.rds")
 
 suicide_data_app <- read_rds("final_data.rds")
 
+data_538 <- read_rds("data_538.rds")
+
 # Define UI for application that displays my graph
+
 ui <- fluidPage(
     
     # Application title
-    titlePanel("Guns in America"),
+    
+    titlePanel("Guns & Suicides in America"),
+    
+    # Installing the Nav bar across the top of the application
     
     navbarPage("Menu",
                
-               # First panel on website
+               # First panel on website, going to incoroorate my favorite type of graphic (maps)
+               # The contrasting color and strong visual appearance make it an easy pick for the first thing
+               # people see when they open the website
                
-               tabPanel("Firearm Death Rate",
+               tabPanel("Maps",
                         plotOutput("firearm_plot"),
                         selectInput(inputId = "year", 
                                     label = "Select Year", 
@@ -52,15 +50,27 @@ ui <- fluidPage(
                                                 "2015" = 2015,
                                                 "2014" = 2014,
                                                 "2005" = 2005), selected = "a"),
+                        
+                        # Plotting the graphic
+                        
                         plotOutput("suicide_map"),
                         
                ),
                
-               # Second panel on website
+               # This is the mega graphic of the project
                
-               tabPanel("Suicide Rate and Deaths by Guns",
-                        selectInput(inputId = "year2",  # Give the input a name "genotype"
-                                    label = "Select Year",  # Give the input a label to be displayed in the app
+               tabPanel("Who's Dying?",
+                        plotOutput("death_by_race")
+               ),
+               
+               # Third panel on website, the statistical modeling portion of the project
+               
+               tabPanel("Suicide Rate and Firearm Death",
+                        
+                        # Setting up the input for the regression modeling
+                        
+                        selectInput(inputId = "year2",  
+                                    label = "Select Year", 
                                     choices = c("2017" = 2017,
                                                 "2016" = 2016,
                                                 "2015" = 2015,
@@ -108,7 +118,7 @@ server <- function(input, output) {
                                                 plot.title = element_text(hjust = 0.5))
     )
     
-    # Creating map of suicide rates in America per year
+    # Creating visual statistical
     
     output$suicide_map <- renderPlot(ggplot(data = map_data_app[map_data_app$year == input$year,],
                                              mapping = aes(x = long, y = lat, group = group, fill = suicide_rate)) + 
@@ -137,7 +147,8 @@ server <- function(input, output) {
     
     # Creating a graph trying to find the correlation between suicides and gun deaths per year
     
-    output$suicide_plot <- renderPlot(ggplot(data = suicide_data_app[suicide_data_app$year == input$year2,], aes(x = suicide_rate, y = deaths_year)) +
+    output$suicide_plot <- renderPlot(ggplot(data = suicide_data_app[suicide_data_app$year == input$year2,],
+                                             aes(x = suicide_rate, y = deaths_year)) +
                                           geom_point() +
                                           geom_smooth(method = "lm") +
                                           labs(
@@ -149,6 +160,19 @@ server <- function(input, output) {
                                       
                                       
     )
+    
+    # Creating a graphic which incorporates as much as the 385's data as possible
+    
+    output$death_by_race <- renderPlot(ggplot(data = data_538, aes(x = race, fill = race, y = deaths)) +
+                                                  geom_col() +
+                                                  labs(title = "Total Gun Deaths By Race",
+                                                       x = "Race",
+                                                       y = "Deaths",
+                                                       caption = "Deaths are an average from 2012-2014"
+                                                  ))
+                                      
+                                      
+    
 }
 
 # Run the application 
