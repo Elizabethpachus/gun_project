@@ -133,7 +133,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                             
                             # Adding a panel where the user can choose which graph to view
                         
-                            mainPanel(
+                            mainPanel("What is the relationship between Firearm Deaths and Suicide Rate?",
                                       tabsetPanel(
                                           
                                           # Graph displaying the correlation between firearm death rate averages and 
@@ -144,9 +144,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                           # This graph shows the coefficents which show the correlation between firearm 
                                           # and suicide rate per state
                                           
+                                          tabPanel("Correlation?", plotOutput("suicide_plot3")),
+                                          
                                           # This graph shows the r squared value per state
                                           
-                                          tabPanel("Summary", plotOutput("suicide_plot2"))
+                                          tabPanel("Uncertainty", plotOutput("suicide_plot2"))
                                       ))
                         )
                ),
@@ -237,25 +239,42 @@ server <- function(input, output) {
                                               x = "Suicide Rate per 1000",
                                               y = "Deaths per Year"
                                           ) +
-                                          theme_gdocs(base_size = 12, base_family = "sans")
+                                          theme_minimal()
                                       
                                       
     )
     
     # R value correlation between suicides and firearm deaths
     
-    output$suicide_plot2 <- renderPlot(ggplot(data = final_bootstrap[final_bootstrap$year == input$year2,],
+    output$suicide_plot2 <- renderPlot(ggplot(data = final_bootstrap,
                                               mapping = aes(x = mean_rsquared, y = reorder(state_name, mean_rsquared), color = state_name)) + 
                                            geom_jitter(width = 0.05) + 
                                            labs(title = "Uncertainty of R Squared Value by State",
-                                                subttile = "Is Firearm Death Rate Associated with Suicide Rate?",
+                                                subttile = "What is the uncertainity with this model?",
                                                 x = 'R Square Value',
                                                 y = "State") +
-                                           theme_gdocs(base_size = 12, base_family = "sans") +
+                                           theme_minimal() +
                                            theme(legend.position = "none")
                                       
                                       
     )
+    
+    
+    output$suicide_plot3 <- renderPlot(ggplot(data = final_bootstrap,
+                                              mapping = aes(x = mean_coefficient, y = reorder(state_name, mean_coefficient), color = state_name)) + 
+                                           geom_jitter(width = 0.05) + 
+                                           labs(title = "What is the Correlation Between Firearm Death Rate and Suicide Rate?",
+                                                x = 'Coefficient',
+                                                y = "State") +
+                                           theme_minimal() +
+                                           theme(legend.position = "none")
+                                       
+                                       
+    )
+    
+    
+    
+    
     
     
     # Creating a graphic which incorporates as much as the 385's data as possible
@@ -263,10 +282,12 @@ server <- function(input, output) {
     
     output$death_by_race <- renderPlot(ggplot(data = data_538, aes(x = race, fill = race, y = deaths)) +
                                                   geom_col() +
+                                                scale_y_continuous(labels = comma) +
                                                   labs(title = "Total Gun Deaths By Race",
                                                        x = "Race",
                                                        y = "Deaths",
-                                                       caption = "Deaths are an average from 2012-2014"
+                                                       caption = "Deaths are an average from 2012-2014",
+                                                       fill = "Race"
                                                   ))
                                       
                                       

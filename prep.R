@@ -58,30 +58,19 @@ final_data <- read_csv("raw-data/final_data.csv", col_types = cols(
 
 # Statistical Analysis on the Final Data
 
-final_data_stats <- final_data %>% 
-  drop_na() %>% 
-  group_by(state_name) %>% 
-  nest() %>% 
-  mutate(year = map(data, ~pluck(.x, "year"))) %>% 
-  unnest(year) %>% 
-  mutate(mod = map(data, ~ lm(rate_per_1000 ~ suicide_rate, data = .x))) %>%
-  mutate(coefficients = map(mod, ~ tidy(.x))) %>%
-  mutate(sum_stats = map(mod, ~ glance(.x))) %>%
-  unnest(coefficients) %>%
-  select(-std.error, -statistic, -p.value, -mod) %>%
-  unnest(sum_stats) %>% 
-  filter(term == "suicide_rate")
+
+# Creating a model to see if suicide rate and year have an effect on firearm death rate by state
+
 
 # Data in bootstrap formation of R2 value by state
 
 final_data_bootstrap <- final_data_stats %>% 
   rep_sample_n(size = 50, replace = TRUE, reps = 1000) %>% 
-  group_by(replicate, state_name, year) %>% 
+  group_by(replicate, state_name) %>% 
   summarize(mean_rsquared = mean(r.squared),
             mean_coefficient = mean(estimate))
 
 # Colorful plotting r_squared values for firearm death rate and suicide rate
-
 
 ggplot(data = final_data_bootstrap,
        mapping = aes(x = mean_coefficient, y = reorder(state_name, mean_coefficient), color = state_name)) + 
@@ -92,10 +81,6 @@ ggplot(data = final_data_bootstrap,
   theme(legend.position = "none")
 
 
-
-
-  
-  
 
 
 # This is the data from 538's project on gun violence in America. It was one of the few clean and condensed data sources
@@ -120,7 +105,6 @@ data_538 <- read_csv('raw-data/interactive_data.csv', col_types = cols(
 # mutate this value into an X instead for ease of coding later 
 
 data_538[data_538 == "None selected"] <- "X"
-
 
 
 # OUTPUT
