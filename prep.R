@@ -1,9 +1,7 @@
 # Loading necessary libraries
 
-library(tidyverse)
 library(sf)
 library(fs)
-library(ggplot2)
 library(maps)
 library(ggthemes)
 library(janitor)
@@ -14,6 +12,7 @@ library(ggridges)
 library(readr)
 library(broom)
 library(ggthemes)
+library(ggplot2)
 library(tidyverse)
 
 # INPUT
@@ -53,7 +52,17 @@ final_data <- read_csv("raw-data/final_data.csv", col_types = cols(
                                                                   deaths_year = col_double(),
                                                                   suicide_rate = col_double(),
                                                                   suicide_deaths = col_double()
-                                                                )) 
+                                                                )) %>% 
+  drop_na() %>% 
+  filter(intent == "All Intents") %>% 
+  select(-cause, -intent, -state)
+
+
+# Reading in the veterans data 
+
+veterans <- read_csv("raw-data/veterans.csv") %>% 
+  clean_names()
+
 
 
 # Statistical Analysis on the Final Data
@@ -61,12 +70,23 @@ final_data <- read_csv("raw-data/final_data.csv", col_types = cols(
 
 # Creating a model to see if suicide rate and year have an effect on firearm death rate by state
 
+final_data_stats <- final_data %>% 
+  group_by(state_name) %>%
+  nest() %>%
+  rename(nested_data = data) %>% 
+  mutate(model = map(nested_data, ~ lm(rate_per_1000 ~ suicide_rate + year, data = .x))) %>% 
+  mutate(coefficients = map(model, ~ tidy(.x))) %>%
+  mutate(sum_stats = map(model, ~ glance(.x))) %>%
+  unnest(coefficients) %>%
+  select(-std.error, -statistic, -p.value, -model) %>%
+  unnest(sum_stats)
+
 
 # Data in bootstrap formation of R2 value by state
 
 final_data_bootstrap <- final_data_stats %>% 
   rep_sample_n(size = 50, replace = TRUE, reps = 1000) %>% 
-  group_by(replicate, state_name) %>% 
+  group_by(replicate, state_name, term) %>% 
   summarize(mean_rsquared = mean(r.squared),
             mean_coefficient = mean(estimate))
 
