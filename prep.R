@@ -77,32 +77,19 @@ final_data_stats <- final_data %>%
 final_data_bootstrap <- final_data_stats %>% 
   rep_sample_n(size = 50, replace = TRUE, reps = 1000) %>% 
   group_by(replicate, state_name, year) %>% 
-  summarize(mean_rsquared = mean(r.squared))
+  summarize(mean_rsquared = mean(r.squared),
+            mean_coefficient = mean(estimate))
 
-
-
-final_data_bootstrap %>% 
-  ggplot(aes(y = state_name, x = mean_rsquared, group = state_name)) +
-  geom_density_ridges() +
-  labs(title = "Are Suicide Rates and Firearm Death Rates Correlated?",
-       x = "R squared value",
-       y = "State") 
-  
 # Colorful plotting r_squared values for firearm death rate and suicide rate
 
+
 ggplot(data = final_data_bootstrap,
-            mapping = aes(x = mean_rsquared, y = reorder(state_name, mean_rsquared), color = state_name)) + 
-                geom_jitter(width = 0.05) + 
-                labs(title = "Uncertainty of R Squared Value by State",
-                     subttile = "Is Firearm Death Rate Associated with Suicide Rate?",
-                     x = 'R Square Value',
-                     y = "State") +
+       mapping = aes(x = mean_coefficient, y = reorder(state_name, mean_coefficient), color = state_name)) + 
+  geom_jitter(width = 0.05) + 
+  labs(title = "Is there a correlation between suicide rate and firearm death rate?",
+       x = 'Coefficient',
+       y = "State") +
   theme(legend.position = "none")
-
-plot
-
-
-
 
 
 

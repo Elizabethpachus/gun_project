@@ -120,22 +120,36 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                         sidebarLayout(
                             
                             sidebarPanel(
+                                
+                                    # Setting up the input for the regression modeling
+                                    
+                                    selectInput(inputId = "year2",  
+                                                label = "Select Year", 
+                                                choices = c("2017" = 2017,
+                                                            "2016" = 2016,
+                                                            "2015" = 2015,
+                                                            "2014" = 2014,
+                                                            "2005" = 2005), selected = "a")),
+                            
+                            # Adding a panel where the user can choose which graph to view
                         
-                        # Setting up the input for the regression modeling
-                        
-                        selectInput(inputId = "year2",  
-                                    label = "Select Year", 
-                                    choices = c("2017" = 2017,
-                                                "2016" = 2016,
-                                                "2015" = 2015,
-                                                "2014" = 2014,
-                                                "2005" = 2005), selected = "a")),
-                        
-                        mainPanel(
-                        
-                        plotOutput("suicide_plot"),
-                        plotOutput("suicide_plot2"))
-               )),
+                            mainPanel(
+                                      tabsetPanel(
+                                          
+                                          # Graph displaying the correlation between firearm death rate averages and 
+                                          # suicide rates per state
+                                          
+                                          tabPanel("Plot", plotOutput("suicide_plot")),
+                                          
+                                          # This graph shows the coefficents which show the correlation between firearm 
+                                          # and suicide rate per state
+                                          
+                                          # This graph shows the r squared value per state
+                                          
+                                          tabPanel("Summary", plotOutput("suicide_plot2"))
+                                      ))
+                        )
+               ),
                
                # Including the About page info here
                
@@ -147,7 +161,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 
 
 
-# Define server logic required to draw a histogram
+
+# SERVER SIDE OF APP
+
 server <- function(input, output) {
     
     
@@ -208,6 +224,13 @@ server <- function(input, output) {
     output$suicide_plot <- renderPlot(ggplot(data = suicide_data_app[suicide_data_app$year == input$year2,],
                                              aes(x = suicide_rate, y = deaths_year)) +
                                           geom_point() +
+                                          
+                                          # Setting limits for the graphs so that even as the year changes the 
+                                          # actual scales will remain the same to make it easier to differentiate 
+                                          # between the years
+                                          
+                                          scale_y_continuous(limits = c(0,3300)) +
+                                          scale_x_continuous(limits = c(8,30)) +
                                           geom_smooth(method = "lm") +
                                           labs(
                                               title = "Deaths per Year by Guns by Suicide Rate of State",
