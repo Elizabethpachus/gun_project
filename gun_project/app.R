@@ -1,3 +1,6 @@
+# This is the main page behind the webpage
+# It renders all my graphics. The first section is mostly prep, then it turns into the shiny app interface
+
 # Installing necessary libraries
 
 library(readr)
@@ -12,7 +15,9 @@ library(openintro)
 library(scales)
 library(infer)
 library(broom)
+library(ggridges)
 library(ggthemes)
+library(shinythemes)
 library(mapdata)
 library(mapproj)
 library(tidyverse)
@@ -25,13 +30,19 @@ suicide_data_app <- read_rds("final_data.rds")
 
 data_538 <- read_rds("data_538.rds")
 
+final_bootstrap <- read_rds("final_bootstrap.rds")
+
+
+
+# MAIN SHINY APP
+
 # Define UI for application that displays my graph
 
-ui <- fluidPage(
+ui <- fluidPage(theme = shinytheme("flatly"),
     
     # Application title
     
-    titlePanel("Guns & Suicides in America"),
+    titlePanel("Guns & Suicide in America"),
     
     # Installing the Nav bar across the top of the application
     
@@ -42,30 +53,73 @@ ui <- fluidPage(
                # people see when they open the website
                
                tabPanel("Maps",
-                        plotOutput("firearm_plot"),
-                        selectInput(inputId = "year", 
-                                    label = "Select Year", 
-                                    choices = c("2017" = 2017,
-                                                "2016" = 2016,
-                                                "2015" = 2015,
-                                                "2014" = 2014,
-                                                "2005" = 2005), selected = "a"),
                         
-                        # Plotting the graphic
+                        # Side bar layout
                         
-                        plotOutput("suicide_map"),
+                        sidebarLayout(
+                            
+                            # In the panel is the dropdown to select the year. I chose not to have the slider because 
+                            # the years are sequential except for 2005
+                            
+                            sidebarPanel("At What Rates are Americans Dying from Guns and Suicides?",
+                                         br(),
+                                         selectInput(inputId = "year", 
+                                                     label = "Select Year", 
+                                                     choices = c("2017" = 2017,
+                                                                 "2016" = 2016,
+                                                                 "2015" = 2015,
+                                                                 "2014" = 2014,
+                                                                 "2005" = 2005), selected = "a")),
+                            
+                            # Display the graphics
+                            
+                            mainPanel("Where in America?",
+                                      plotOutput("firearm_plot"),
+                                      plotOutput("suicide_map"))
+                        ),
+
+                        
+                        
                         
                ),
                
                # This is the mega graphic of the project
                
                tabPanel("Who's Dying?",
-                        plotOutput("death_by_race")
+                        
+                        
+                        sidebarLayout(
+                            
+                            sidebarPanel(
+                        
+                                    # Including a tab so people can choose how to break down the graphic
+                                    
+                                    selectInput(inputId = "choice",  
+                                                label = "View deaths by:", 
+                                                choices = c("Gender" = "gender",
+                                                            "Intent" = "intent",
+                                                            "Age" = "age"), selected = "a"),
+                                    
+                                    # This input selected chooses if the data should be displayed in RATE of death or total deaths
+                                    # Personally, I believe when dealing with deaht the total number is more powerful than the rate
+                                    
+                                    selectInput(inputId = "viewpoint",  
+                                                label = "Measure", 
+                                                choices = c("Total Deaths" = "deaths",
+                                                            "Death Rate Per 100,000" = "rate"), selected = "a")),
+                                    
+                        mainPanel(           
+                        plotOutput("death_by_race")))
                ),
                
                # Third panel on website, the statistical modeling portion of the project
                
                tabPanel("Suicide Rate and Firearm Death",
+                        
+                        
+                        sidebarLayout(
+                            
+                            sidebarPanel(
                         
                         # Setting up the input for the regression modeling
                         
@@ -75,9 +129,13 @@ ui <- fluidPage(
                                                 "2016" = 2016,
                                                 "2015" = 2015,
                                                 "2014" = 2014,
-                                                "2005" = 2005), selected = "a"),
-                        plotOutput("suicide_plot")
-               ),
+                                                "2005" = 2005), selected = "a")),
+                        
+                        mainPanel(
+                        
+                        plotOutput("suicide_plot"),
+                        plotOutput("suicide_plot2"))
+               )),
                
                # Including the About page info here
                
@@ -93,7 +151,7 @@ ui <- fluidPage(
 server <- function(input, output) {
     
     
-    # Creating the map graphic on the home page
+    # Creating the map graphic on the home page, the first graphic which lists the firearm death rate per state
     
     output$firearm_plot <- renderPlot(ggplot(data = map_data_app[map_data_app$year == input$year,],
                                              mapping = aes(x = long, y = lat, group = group, fill = rate_per_1000)) + 
@@ -161,7 +219,24 @@ server <- function(input, output) {
                                       
     )
     
+    # R value correlation between suicides and firearm deaths
+    
+    output$suicide_plot2 <- renderPlot(ggplot(data = final_bootstrap[final_bootstrap$year == input$year2,],
+                                              mapping = aes(x = mean_rsquared, y = reorder(state_name, mean_rsquared), color = state_name)) + 
+                                           geom_jitter(width = 0.05) + 
+                                           labs(title = "Uncertainty of R Squared Value by State",
+                                                subttile = "Is Firearm Death Rate Associated with Suicide Rate?",
+                                                x = 'R Square Value',
+                                                y = "State") +
+                                           theme_gdocs(base_size = 12, base_family = "sans") +
+                                           theme(legend.position = "none")
+                                      
+                                      
+    )
+    
+    
     # Creating a graphic which incorporates as much as the 385's data as possible
+    # This is the graphic I hope people will spend the most amount of time on.
     
     output$death_by_race <- renderPlot(ggplot(data = data_538, aes(x = race, fill = race, y = deaths)) +
                                                   geom_col() +
@@ -175,5 +250,6 @@ server <- function(input, output) {
     
 }
 
-# Run the application 
+# Running  the application 
+
 shinyApp(ui = ui, server = server)

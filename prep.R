@@ -10,11 +10,13 @@ library(janitor)
 library(openintro)
 library(scales)
 library(infer)
+library(ggridges)
 library(readr)
 library(broom)
 library(ggthemes)
 library(tidyverse)
 
+# INPUT
 # Reading data in from the raw-data folder csv files
 
 map_data <- read_csv("raw-data/final_data_map.csv", col_types = cols(
@@ -51,7 +53,63 @@ final_data <- read_csv("raw-data/final_data.csv", col_types = cols(
                                                                   deaths_year = col_double(),
                                                                   suicide_rate = col_double(),
                                                                   suicide_deaths = col_double()
-                                                                ))
+                                                                )) 
+
+
+# Statistical Analysis on the Final Data
+
+final_data_stats <- final_data %>% 
+  drop_na() %>% 
+  group_by(state_name) %>% 
+  nest() %>% 
+  mutate(year = map(data, ~pluck(.x, "year"))) %>% 
+  unnest(year) %>% 
+  mutate(mod = map(data, ~ lm(rate_per_1000 ~ suicide_rate, data = .x))) %>%
+  mutate(coefficients = map(mod, ~ tidy(.x))) %>%
+  mutate(sum_stats = map(mod, ~ glance(.x))) %>%
+  unnest(coefficients) %>%
+  select(-std.error, -statistic, -p.value, -mod) %>%
+  unnest(sum_stats) %>% 
+  filter(term == "suicide_rate")
+
+# Data in bootstrap formation of R2 value by state
+
+final_data_bootstrap <- final_data_stats %>% 
+  rep_sample_n(size = 50, replace = TRUE, reps = 1000) %>% 
+  group_by(replicate, state_name, year) %>% 
+  summarize(mean_rsquared = mean(r.squared))
+
+
+
+final_data_bootstrap %>% 
+  ggplot(aes(y = state_name, x = mean_rsquared, group = state_name)) +
+  geom_density_ridges() +
+  labs(title = "Are Suicide Rates and Firearm Death Rates Correlated?",
+       x = "R squared value",
+       y = "State") 
+  
+# Colorful plotting r_squared values for firearm death rate and suicide rate
+
+ggplot(data = final_data_bootstrap,
+            mapping = aes(x = mean_rsquared, y = reorder(state_name, mean_rsquared), color = state_name)) + 
+                geom_jitter(width = 0.05) + 
+                labs(title = "Uncertainty of R Squared Value by State",
+                     subttile = "Is Firearm Death Rate Associated with Suicide Rate?",
+                     x = 'R Square Value',
+                     y = "State") +
+  theme(legend.position = "none")
+
+plot
+
+
+
+
+
+
+
+  
+  
+
 
 # This is the data from 538's project on gun violence in America. It was one of the few clean and condensed data sources
 # I could find on guns in America, which just shows how politicized the issue is.
@@ -77,7 +135,11 @@ data_538 <- read_csv('raw-data/interactive_data.csv', col_types = cols(
 data_538[data_538 == "None selected"] <- "X"
 
 
+
+# OUTPUT
 # Writing them out into rds files in the rds_files app
+
+write_rds(final_data_bootstrap, "gun_project/final_bootstrap.rds")
 
 write_rds(final_data, "gun_project/final_data.rds")
 
