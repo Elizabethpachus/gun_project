@@ -144,13 +144,19 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                           # This graph shows the coefficents which show the correlation between firearm 
                                           # and suicide rate per state
                                           
-                                          tabPanel("Correlation?", plotOutput("suicide_plot3")),
+                                          tabPanel("Correlation?", plotOutput("suicide_plot3", height = "700px")),
                                           
                                           # This graph shows the r squared value per state
                                           
-                                          tabPanel("Uncertainty", plotOutput("suicide_plot2"))
+                                          tabPanel("Uncertainty", plotOutput("suicide_plot2", height = "700px"))
                                       ))
                         )
+               ),
+               
+               # Include a section on veteran data
+               
+               tabPanel("Veteran Data",
+                        includeMarkdown("about.md")
                ),
                
                # Including the About page info here
@@ -180,7 +186,7 @@ server <- function(input, output) {
                                          
                                           labs(title = "Firearm Mortality by State") + 
                                           theme_map() + 
-                                          labs(fill = "Death Rate per 100,000") + 
+                                          labs(fill = "Death Rate per 1,000") + 
                                           
                                           # Adding the color scale 
                                           
@@ -188,7 +194,7 @@ server <- function(input, output) {
                                                               high = "#FB0000",
                                                               limits = c(0,25)) +
                                           labs(title = "Firearm Mortality by State",
-                                               subtitle = "Firearm Death Rate Per 1000 People",
+                                               subtitle = "Firearm Death Rate Per 1,000 People",
                                                caption = "Data from CDC") +
                                           theme(legend.position = "right",
                                                 plot.title = element_text(hjust = 0.5))
@@ -204,8 +210,6 @@ server <- function(input, output) {
                                           geom_polygon(color = "gray90", size = 0.1) +
                                           coord_map(projection = "albers", 
                                                     lat0 = 39, lat1 = 45) + 
-                                          
-                                          labs(title = "Suicide Rate by State") + 
                                           theme_map() + 
                                          
                                          # Setting the coloring of the states with the max as the max for that category
@@ -213,6 +217,9 @@ server <- function(input, output) {
                                           scale_fill_gradient(low = "#C4C5F1",
                                                               high = "#080BBD",
                                                               limits = c(0,30)) +
+                                         
+                                         # Adding titles 
+                                         
                                           labs(title = "Suicide Rate by State",
                                                subtitle = "Suicide Death Rate Per 1000 People",
                                                caption = "Data from CDC",
@@ -236,7 +243,7 @@ server <- function(input, output) {
                                           geom_smooth(method = "lm") +
                                           labs(
                                               title = "Deaths per Year by Guns by Suicide Rate of State",
-                                              x = "Suicide Rate per 1000",
+                                              x = "Suicide Rate per 1,000",
                                               y = "Deaths per Year"
                                           ) +
                                           theme_minimal()
@@ -247,8 +254,12 @@ server <- function(input, output) {
     # R value correlation between suicides and firearm deaths
     
     output$suicide_plot2 <- renderPlot(ggplot(data = final_bootstrap,
-                                              mapping = aes(x = mean_rsquared, y = reorder(state_name, mean_rsquared), color = state_name)) + 
-                                           geom_jitter(width = 0.05) + 
+                                              mapping = aes(x = mean_rsquared,
+                                                            y = reorder(state_name, mean_rsquared),
+                                                            color = state_name)) + 
+                                           geom_jitter(width = 0.03,
+                                                       height = 0.01) + 
+                                           scale_y_discrete(expand = expand_scale(mult = 0, add = 0)) +
                                            labs(title = "Uncertainty of R Squared Value by State",
                                                 subttile = "What is the uncertainity with this model?",
                                                 x = 'R Square Value',
@@ -262,7 +273,7 @@ server <- function(input, output) {
     
     output$suicide_plot3 <- renderPlot(ggplot(data = final_bootstrap,
                                               mapping = aes(x = mean_coefficient, y = reorder(state_name, mean_coefficient), color = state_name)) + 
-                                           geom_jitter(width = 0.05) + 
+                                           geom_point() + 
                                            labs(title = "What is the Correlation Between Firearm Death Rate and Suicide Rate?",
                                                 x = 'Coefficient',
                                                 y = "State") +

@@ -90,18 +90,6 @@ final_data_bootstrap <- final_data_stats %>%
   summarize(mean_rsquared = mean(r.squared),
             mean_coefficient = mean(estimate))
 
-# Colorful plotting r_squared values for firearm death rate and suicide rate
-
-ggplot(data = final_data_bootstrap,
-       mapping = aes(x = mean_coefficient, y = reorder(state_name, mean_coefficient), color = state_name)) + 
-  geom_jitter(width = 0.05) + 
-  labs(title = "Is there a correlation between suicide rate and firearm death rate?",
-       x = 'Coefficient',
-       y = "State") +
-  theme(legend.position = "none")
-
-
-
 
 # This is the data from 538's project on gun violence in America. It was one of the few clean and condensed data sources
 # I could find on guns in America, which just shows how politicized the issue is.
@@ -129,6 +117,8 @@ data_538[data_538 == "None selected"] <- "X"
 
 # OUTPUT
 # Writing them out into rds files in the rds_files app
+
+write_rds(veterans, "gun_project/veterans.rds")
 
 write_rds(final_data_bootstrap, "gun_project/final_bootstrap.rds")
 
