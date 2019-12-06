@@ -58,15 +58,48 @@ final_data <- read_csv("raw-data/final_data.csv", col_types = cols(
   filter(intent == "All Intents") %>% 
   select(-cause, -intent, -state)
 
+# This is the data from 538's project on gun violence in America. It was one of the few clean and condensed data sources
+# I could find on guns in America, which just shows how politicized the issue is.
+# Numbers are averages from 2012-2014
+
+data_538 <- read_csv('raw-data/interactive_data.csv', col_types = cols(
+                                                                      X1 = col_double(),
+                                                                      Intent = col_character(),
+                                                                      Gender = col_character(),
+                                                                      Age = col_character(),
+                                                                      Race = col_character(),
+                                                                      Deaths = col_double(),
+                                                                      Population = col_double(),
+                                                                      Rate = col_double()
+                                                                    )) %>% 
+                                                                      rename(index = "X1") %>% 
+                                                                      clean_names()
+
+
+# The data set was set up to filter for certain categories which where listed as none selected, I decided to 
+# mutate this value into an X instead for ease of coding later 
+
+data_538[data_538 == "None selected"] <- "X"
+
 
 # Reading in the veterans data 
 
 veterans <- read_csv("raw-data/veterans.csv") %>% 
   clean_names()
 
-veterans
 
-# Statistical Analysis on the Final Data
+
+# Adding the veteran data to the map_data
+
+veterans2 <- veterans %>% 
+  filter(sex == "Total") %>% 
+  select(year, state_of_death, veteran_suicides) %>% 
+  rename(state_name = state_of_death)
+
+map_data <- left_join(map_data, veterans2, by = c("year", "state_name"))
+
+
+### Statistical Analysis on the Final Data ###
 
 
 # Creating a model to see if suicide rate and year have an effect on firearm death rate by state
@@ -96,28 +129,7 @@ final_data_bootstrap <- final_data_stats %>%
             mean_coefficient = mean(estimate))
 
 
-# This is the data from 538's project on gun violence in America. It was one of the few clean and condensed data sources
-# I could find on guns in America, which just shows how politicized the issue is.
-# Numbers are averages from 2012-2014
 
-data_538 <- read_csv('raw-data/interactive_data.csv', col_types = cols(
-                                                                      X1 = col_double(),
-                                                                      Intent = col_character(),
-                                                                      Gender = col_character(),
-                                                                      Age = col_character(),
-                                                                      Race = col_character(),
-                                                                      Deaths = col_double(),
-                                                                      Population = col_double(),
-                                                                      Rate = col_double()
-                                                                    )) %>% 
-  rename(index = "X1") %>% 
-  clean_names()
-
-
-# The data set was set up to filter for certain categories which where listed as none selected, I decided to 
-# mutate this value into an X instead for ease of coding later 
-
-data_538[data_538 == "None selected"] <- "X"
 
 
 # OUTPUT

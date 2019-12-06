@@ -33,7 +33,6 @@ data_538 <- read_rds("data_538.rds")
 final_bootstrap <- read_rds("final_bootstrap.rds")
 
 
-
 # MAIN SHINY APP
 
 # Define UI for application that displays my graph
@@ -69,7 +68,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                                  "2016" = 2016,
                                                                  "2015" = 2015,
                                                                  "2014" = 2014,
-                                                                 "2005" = 2005), selected = "a")),
+                                                                 "2005" = 2005), selected = "a"),
+                                         p("These maps depict the death rate by firearms and the suicide death rate for each of the states")),
+                                    
                             
                             # Output the two maps
                             
@@ -96,15 +97,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                 label = "View deaths by:", 
                                                 choices = c("Gender" = "gender",
                                                             "Intent" = "intent",
-                                                            "Age" = "age"), selected = "a"),
-                                    
-                                    # This input selected chooses if the data should be displayed in RATE of death or total deaths
-                                    # Personally, I believe when dealing with deaht the total number is more powerful than the rate
-                                    
-                                    selectInput(inputId = "viewpoint",  
-                                                label = "Measure", 
-                                                choices = c("Total Deaths" = "deaths",
-                                                            "Death Rate Per 100,000" = "rate"), selected = "a")),
+                                                            "Age" = "age"), selected = "gender"),
+                                    p("Choose how to break down the total population deaths")),
                                     
                         mainPanel(           
                         plotOutput("death_by_race")))
@@ -226,6 +220,7 @@ server <- function(input, output) {
     )
     
     # Creating a graph trying to find the correlation between suicides and gun deaths per year
+    # I am trying to answer the question, does suicide death rate impact firearm death rate?
     
     output$suicide_plot <- renderPlot(ggplot(data = suicide_data_app[suicide_data_app$year == input$year2,],
                                              aes(x = suicide_rate, y = deaths_year)) +
@@ -244,7 +239,6 @@ server <- function(input, output) {
                                               y = "Deaths per Year"
                                           ) +
                                           theme_minimal()
-                                      
                                       
     )
     
@@ -285,16 +279,77 @@ server <- function(input, output) {
     
     # Creating a graphic which incorporates as much as the 385's data as possible
     # This is the graphic I hope people will spend the most amount of time on.
+   
     
-    output$death_by_race <- renderPlot(ggplot(data = data_538, aes(x = race, fill = race, y = deaths)) +
-                                                  geom_col() +
-                                                scale_y_continuous(labels = comma) +
-                                                  labs(title = "Total Gun Deaths By Race",
-                                                       x = "Race",
-                                                       y = "Deaths",
-                                                       caption = "Deaths are an average from 2012-2014",
-                                                       fill = "Race"
-                                                  ))
+    output$death_by_race <- renderPlot({
+        
+        if (input$choice == "gender") {
+            data_538 %>% 
+                
+                # filtering data
+                
+                filter(intent == "X") %>% 
+                filter(age == "X") %>% 
+                filter(race != "X") %>% 
+                filter(gender != "X") %>% 
+                
+                # ggplot
+                
+                ggplot(aes(x = race, fill = gender, group = gender, y = deaths)) +
+                geom_col(position = position_dodge(width = 0.9)) +
+                labs(title = "Total Gun Deaths By Race",
+                     x = "Race",
+                     y = "Deaths",
+                     caption = "Deaths are an average from 2012-2014")
+            
+        } else if(input$choice == "intent") {
+            
+            data_538 %>% 
+                
+                # filtering data
+                
+                filter(intent != "X") %>% 
+                filter(age == "X") %>% 
+                filter(race != "X") %>% 
+                filter(gender == "X") %>% 
+                
+                # ggplot
+                
+                ggplot(aes(x = race, fill = intent, group = intent, y = deaths)) +
+                geom_col(position = position_dodge(width = 0.9)) +
+                labs(title = "Total Gun Deaths By Race",
+                     x = "Race",
+                     y = "Deaths",
+                     caption = "Deaths are an average from 2012-2014")
+            
+        } else if(input$choice == "age") {
+            
+            data_538 %>% 
+                
+                # filtering data
+                
+                filter(intent == "X") %>% 
+                filter(age != "X") %>% 
+                filter(race != "X") %>% 
+                filter(gender == "X") %>% 
+                
+                # ggplot
+                
+                ggplot(aes(x = race, fill = age, group = age, y = deaths)) +
+                geom_col(position = position_dodge(width = 0.9)) +
+                labs(title = "Total Gun Deaths By Race",
+                     x = "Race",
+                     y = "Deaths",
+                     caption = "Deaths are an average from 2012-2014")
+        }
+        
+        })
+    
+ 
+# Plotting the veteran data
+    
+    
+    
                                       
                                       
     
