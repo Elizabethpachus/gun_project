@@ -71,14 +71,12 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                                  "2014" = 2014,
                                                                  "2005" = 2005), selected = "a")),
                             
-                            # Display the graphics
+                            # Output the two maps
                             
                             mainPanel("Where in America?",
-                                      plotOutput("firearm_plot"),
+                                      plotOutput("firearm_map"),
                                       plotOutput("suicide_map"))
                         ),
-
-                        
                         
                         
                ),
@@ -114,8 +112,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                
                # Third panel on website, the statistical modeling portion of the project
                
-               tabPanel("Suicide Rate and Firearm Death",
-                        
+               tabPanel("Is there a correlation?",
                         
                         sidebarLayout(
                             
@@ -144,11 +141,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                           # This graph shows the coefficents which show the correlation between firearm 
                                           # and suicide rate per state
                                           
-                                          tabPanel("Correlation?", plotOutput("suicide_plot3", height = "700px")),
+                                          tabPanel("Correlation?", plotOutput("correlation_plot", height = "700px")),
                                           
                                           # This graph shows the r squared value per state
                                           
-                                          tabPanel("Uncertainty", plotOutput("suicide_plot2", height = "700px"))
+                                          tabPanel("Uncertainty", plotOutput("uncertainty_plot", height = "700px"))
                                       ))
                         )
                ),
@@ -177,7 +174,7 @@ server <- function(input, output) {
     
     # Creating the map graphic on the home page, the first graphic which lists the firearm death rate per state
     
-    output$firearm_plot <- renderPlot(ggplot(data = map_data_app[map_data_app$year == input$year,],
+    output$firearm_map <- renderPlot(ggplot(data = map_data_app[map_data_app$year == input$year,],
                                              mapping = aes(x = long, y = lat, group = group, fill = rate_per_1000)) + 
                                                  
                                           geom_polygon(color = "gray90", size = 0.1) +
@@ -253,7 +250,7 @@ server <- function(input, output) {
     
     # R value correlation between suicides and firearm deaths
     
-    output$suicide_plot2 <- renderPlot(ggplot(data = final_bootstrap,
+    output$uncertainty_plot <- renderPlot(ggplot(data = final_bootstrap,
                                               mapping = aes(x = mean_rsquared,
                                                             y = reorder(state_name, mean_rsquared),
                                                             color = state_name)) + 
@@ -271,21 +268,19 @@ server <- function(input, output) {
     )
     
     
-    output$suicide_plot3 <- renderPlot(ggplot(data = final_bootstrap,
-                                              mapping = aes(x = mean_coefficient, y = reorder(state_name, mean_coefficient), color = state_name)) + 
+    output$correlation_plot <- renderPlot(ggplot(data = final_bootstrap,
+                                              mapping = aes(x = mean_coefficient,
+                                                            y = reorder(state_name, mean_coefficient),
+                                                            color = state_name)) + 
                                            geom_point() + 
                                            labs(title = "What is the Correlation Between Firearm Death Rate and Suicide Rate?",
-                                                x = 'Coefficient',
+                                                x = 'Intercept',
                                                 y = "State") +
                                            theme_minimal() +
                                            theme(legend.position = "none")
                                        
                                        
     )
-    
-    
-    
-    
     
     
     # Creating a graphic which incorporates as much as the 385's data as possible

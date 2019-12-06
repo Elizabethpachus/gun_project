@@ -37,6 +37,7 @@ map_data <- read_csv("raw-data/final_data_map.csv", col_types = cols(
                                                                     suicide_rate = col_double(),
                                                                     suicide_deaths = col_double()
                                                                   ))
+# Cleaning final data
 
 final_data <- read_csv("raw-data/final_data.csv", col_types = cols(
                                                                   state_name = col_character(),
@@ -63,7 +64,7 @@ final_data <- read_csv("raw-data/final_data.csv", col_types = cols(
 veterans <- read_csv("raw-data/veterans.csv") %>% 
   clean_names()
 
-
+veterans
 
 # Statistical Analysis on the Final Data
 
@@ -74,6 +75,9 @@ final_data_stats <- final_data %>%
   group_by(state_name) %>%
   nest() %>%
   rename(nested_data = data) %>% 
+  
+  # The model is of firearm death rate, as influenced by the suicide rate and year
+  
   mutate(model = map(nested_data, ~ lm(rate_per_1000 ~ suicide_rate + year, data = .x))) %>% 
   mutate(coefficients = map(model, ~ tidy(.x))) %>%
   mutate(sum_stats = map(model, ~ glance(.x))) %>%
@@ -87,6 +91,7 @@ final_data_stats <- final_data %>%
 final_data_bootstrap <- final_data_stats %>% 
   rep_sample_n(size = 50, replace = TRUE, reps = 1000) %>% 
   group_by(replicate, state_name, term) %>% 
+  filter(term == "(Intercept)") %>% 
   summarize(mean_rsquared = mean(r.squared),
             mean_coefficient = mean(estimate))
 
