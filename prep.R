@@ -18,6 +18,25 @@ library(tidyverse)
 # INPUT
 # Reading data in from the raw-data folder csv files
 
+veterans_small <- read_csv("raw-data/small_veterans.csv", col_types = cols(
+                                                                          year = col_double(),
+                                                                          total_living_veterans = col_number(),
+                                                                          female = col_number(),
+                                                                          male = col_number()
+                                                                        )) %>% 
+                  rename(total = total_living_veterans) %>% 
+                  gather("gender", "total", 2:4)
+  
+
+
+veterans_living <- read_csv("raw-data/veteran_living.csv",col_types = cols(
+                                                                          state_name = col_character(),
+                                                                          year = col_double(),
+                                                                          living_veterans = col_double()
+                                                                        )) %>% 
+  select(-X4)
+
+
 map_data <- read_csv("raw-data/final_data_map.csv", col_types = cols(
                                                                     state_name = col_character(),
                                                                     cause = col_character(),
@@ -130,10 +149,12 @@ final_data_bootstrap <- final_data_stats %>%
 
 
 
-
-
 # OUTPUT
 # Writing them out into rds files in the rds_files app
+
+write_rds(veterans_living, "gun_project/veterans_living.rds")
+
+write_rds(veterans_small, "gun_project/veterans_small.rds")
 
 write_rds(veterans, "gun_project/veterans.rds")
 

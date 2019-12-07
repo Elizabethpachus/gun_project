@@ -35,6 +35,10 @@ final_bootstrap <- read_rds("final_bootstrap.rds")
 
 veteran_data <- read_rds("veterans.rds")
 
+veteran_small <- read_rds("veterans_small.rds")
+
+
+
 
 # MAIN SHINY APP
 
@@ -55,7 +59,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                # people see when they open the website
                
                tabPanel("Home",
-                        p("WRITE STUFF HERE")),
+                        h2("Welcome to my Project!", align = "center"),
+                        htmlOutput("gun_pic")),
                
                tabPanel("Maps",
                         
@@ -165,7 +170,10 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                # Include a section on veteran data
                
                tabPanel("Veteran Data",
-                        plotOutput("veteran_linegraph")
+                        h3("Number of Veteran Suicides Per Year", align = "center"),
+                        plotOutput("veteran_linegraph", height = "300px"), 
+                        h3("Number of Living Veterans Per Year", align = "center"),
+                        plotOutput("veteran_linegraph2", height = "200px")
                ),
                
                # Including the About page info here
@@ -182,6 +190,18 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 # SERVER SIDE OF APP
 
 server <- function(input, output) {
+    
+    
+    # Image output
+    
+    output$gun_pic <- renderText({
+        c(
+            '<img src="',
+            "https://static01.nyt.com/images/2015/12/14/opinion/14mon1/14mon1-superJumbo.jpg?quality=90&auto=webp",
+            '">')
+        
+    })
+    
     
     
     # Creating the map graphic on the home page, the first graphic which lists the firearm death rate per state
@@ -334,6 +354,7 @@ server <- function(input, output) {
                 
                 ggplot(aes(x = race, fill = gender, group = gender, y = deaths)) +
                 geom_col(position = position_dodge(width = 0.9)) +
+                theme_minimal() +
                 labs(title = "Total Gun Deaths By Race",
                      x = "Race",
                      y = "Deaths",
@@ -354,6 +375,7 @@ server <- function(input, output) {
                 
                 ggplot(aes(x = race, fill = intent, group = intent, y = deaths)) +
                 geom_col(position = position_dodge(width = 0.9)) +
+                theme_minimal() +
                 labs(title = "Total Gun Deaths By Race",
                      x = "Race",
                      y = "Deaths",
@@ -374,6 +396,7 @@ server <- function(input, output) {
                 
                 ggplot(aes(x = race, fill = age, group = age, y = deaths)) +
                 geom_col(position = position_dodge(width = 0.9)) +
+                theme_minimal() +
                 labs(title = "Total Gun Deaths By Race",
                      x = "Race",
                      y = "Deaths",
@@ -388,18 +411,31 @@ server <- function(input, output) {
     output$veteran_linegraph <- renderPlot({
         veteran_data %>% 
             filter(state_of_death == "Total U.S.") %>% 
-            ggplot(aes(x = year, y = veteran_suicides, group = sex, color = sex)) +
+            ggplot(aes(x = year, y = as.integer(veteran_suicides), group = sex, color = sex)) +
             geom_point() +
-            scale_y_discrete() +
-            scale_x_continuous(labels = c(2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017),
-                               breaks = c(2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017)) +
             geom_line() +
-            theme_minimal() + 
+            scale_y_log10(labels = comma) +
+            scale_x_continuous(breaks = c(2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017)) +
+            theme_minimal() +
             labs(x = "Year",
                  y = "Number of Suicides",
                  fill = "Gender")
     })
     
+    
+    output$veteran_linegraph2 <- renderPlot({
+        veteran_small %>% 
+            ggplot(aes(x = year, y = total, color = gender)) +
+            geom_point() +
+            geom_line() +
+            scale_y_log10(labels = comma) +
+            scale_x_continuous(breaks = c(2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017)) +
+            expand_limits(x = c(2005,2017)) +
+            theme_minimal() +
+            labs(x = "Year",
+                 y = "Number of Living Veterans",
+                 fill = "Gender")
+    })
     
                                       
                                       

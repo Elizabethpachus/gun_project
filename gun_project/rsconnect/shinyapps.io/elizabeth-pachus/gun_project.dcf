@@ -5,8 +5,8 @@ account: elizabeth-pachus
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1523255
-bundleId: 2647050
+bundleId: 2649105
 url: https://elizabeth-pachus.shinyapps.io/gun_project/
-when: 1575651562.35834
+when: 1575747873.45012
 asMultiple: FALSE
 asStatic: FALSE
