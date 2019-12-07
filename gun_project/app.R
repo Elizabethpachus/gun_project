@@ -18,6 +18,7 @@ library(broom)
 library(ggridges)
 library(ggthemes)
 library(shinythemes)
+library(shinyWidgets)
 library(mapdata)
 library(mapproj)
 library(tidyverse)
@@ -31,6 +32,8 @@ suicide_data_app <- read_rds("final_data.rds")
 data_538 <- read_rds("data_538.rds")
 
 final_bootstrap <- read_rds("final_bootstrap.rds")
+
+veteran_data <- read_rds("veterans.rds")
 
 
 # MAIN SHINY APP
@@ -51,6 +54,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                # The contrasting color and strong visual appearance make it an easy pick for the first thing
                # people see when they open the website
                
+               tabPanel("Home",
+                        p("WRITE STUFF HERE")),
+               
                tabPanel("Maps",
                         
                         # Side bar layout
@@ -61,7 +67,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                             # the years are sequential except for 2005
                             
                             sidebarPanel("At What Rates are Americans Dying from Guns and Suicides?",
-                                         br(),
+                                         p(""),
                                          selectInput(inputId = "year", 
                                                      label = "Select Year", 
                                                      choices = c("2017" = 2017,
@@ -74,9 +80,21 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                             
                             # Output the two maps
                             
-                            mainPanel("Where in America?",
-                                      plotOutput("firearm_map"),
-                                      plotOutput("suicide_map"))
+                            mainPanel(
+                                      tabsetPanel(
+                                          tabPanel("Firearm plot",
+                                                   h4("Firearm Morality by State", align = "center"),
+                                                   h6("Death rate per 1,000 people", align = "center"),
+                                                   plotOutput("firearm_map"),
+                                                   p("DO A WRITEUP HERE")),
+                                          tabPanel("Suicide Map",
+                                                   h4("Suicide Rate by State", align = "center"),
+                                                   h6("Death rate per 1,000 people", align = "center"),
+                                                   plotOutput("suicide_map"),
+                                                   p("DO A WRITEUP HERE"))
+                                          
+                                      ))
+
                         ),
                         
                         
@@ -147,7 +165,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                # Include a section on veteran data
                
                tabPanel("Veteran Data",
-                        includeMarkdown("about.md")
+                        plotOutput("veteran_linegraph")
                ),
                
                # Including the About page info here
@@ -174,19 +192,14 @@ server <- function(input, output) {
                                           geom_polygon(color = "gray90", size = 0.1) +
                                           coord_map(projection = "albers", 
                                                     lat0 = 39, lat1 = 45) + 
-                                         
-                                          labs(title = "Firearm Mortality by State") + 
                                           theme_map() + 
-                                          labs(fill = "Death Rate per 1,000") + 
+                                          labs(fill = "Rate per 1,000") + 
                                           
                                           # Adding the color scale 
                                           
                                           scale_fill_gradient(low = "#FCB4B4",
                                                               high = "#FB0000",
                                                               limits = c(0,25)) +
-                                          labs(title = "Firearm Mortality by State",
-                                               subtitle = "Firearm Death Rate Per 1,000 People",
-                                               caption = "Data from CDC") +
                                           theme(legend.position = "right",
                                                 plot.title = element_text(hjust = 0.5))
     )
@@ -210,14 +223,38 @@ server <- function(input, output) {
                                                               limits = c(0,30)) +
                                          
                                          # Adding titles 
-                                         
-                                          labs(title = "Suicide Rate by State",
-                                               subtitle = "Suicide Death Rate Per 1000 People",
-                                               caption = "Data from CDC",
-                                               fill = "Rate per 100,000") +
+
                                           theme(legend.position = "right",
                                                 plot.title = element_text(hjust = 0.5))
     )
+    
+    # Veteran Map
+    
+    output$veteran_map <- renderPlot(ggplot(data = map_data_app[map_data_app$year == input$year,],
+                                            mapping = aes(x = long, y = lat, group = group, fill = as.integer(veteran_suicides))) + 
+                                         
+                                         # Adding the neccesary aspects for the plot to look like a map 
+                                         
+                                         geom_polygon(color = "gray90", size = 0.1) +
+                                         coord_map(projection = "albers", 
+                                                   lat0 = 39, lat1 = 45) + 
+                                         theme_map() + 
+                                         
+                                         # Setting the coloring of the states with the max as the max for that category
+                                         
+                                         scale_fill_gradient(low = "#96d497",
+                                                             high = "#006e02",
+                                                             limits = c(0,500)) +
+                                         
+                                         # Adding titles 
+                                              labs(fill = "Legend") +
+                                         theme(legend.position = "right",
+                                               plot.title = element_text(hjust = 0.5))
+    )
+    
+    
+    
+    
     
     # Creating a graph trying to find the correlation between suicides and gun deaths per year
     # I am trying to answer the question, does suicide death rate impact firearm death rate?
@@ -348,6 +385,20 @@ server <- function(input, output) {
  
 # Plotting the veteran data
     
+    output$veteran_linegraph <- renderPlot({
+        veteran_data %>% 
+            filter(state_of_death == "Total U.S.") %>% 
+            ggplot(aes(x = year, y = veteran_suicides, group = sex, color = sex)) +
+            geom_point() +
+            scale_y_discrete() +
+            scale_x_continuous(labels = c(2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017),
+                               breaks = c(2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017)) +
+            geom_line() +
+            theme_minimal() + 
+            labs(x = "Year",
+                 y = "Number of Suicides",
+                 fill = "Gender")
+    })
     
     
                                       
