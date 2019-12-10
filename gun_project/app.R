@@ -1,7 +1,7 @@
 # This is the main page behind the webpage
 # It renders all my graphics. The first section is mostly prep, then it turns into the shiny app interface
 
-# Installing necessary libraries
+#### LIBRARIES ####
 
 library(readr)
 library(markdown)
@@ -23,6 +23,8 @@ library(mapdata)
 library(mapproj)
 library(tidyverse)
 
+#### READING RDS ####
+
 # Reading in the RDS files 
 
 map_data_app <- read_rds("map_data.rds")
@@ -40,7 +42,7 @@ veteran_small <- read_rds("veterans_small.rds")
 
 
 
-# MAIN SHINY APP
+#### SHINY UI ####
 
 # Define UI for application that displays my graph
 
@@ -59,8 +61,16 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                # people see when they open the website
                
                tabPanel("Home",
-                        h2("Welcome to my Project!", align = "center"),
-                        htmlOutput("gun_pic")),
+                        
+                        # Creating a header to my home page with various graphics 
+                        
+                        fluidRow(
+                                column(4),
+                                column(4,img(src='gun_picture.jpg', align = "center", height = "75%", width = "100%")),
+                                ),
+                        h2("Welcome.", align = "center"),
+                        p("This project serves to explore the relationship between guns and suicides, with a highlight on the current epidemic of 
+                          Veteran suicides in the United States.")),
                
                tabPanel("Maps",
                         
@@ -80,10 +90,13 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                                  "2015" = 2015,
                                                                  "2014" = 2014,
                                                                  "2005" = 2005), selected = "a"),
-                                         p("These maps depict the death rate by firearms and the suicide death rate for each of the states")),
+                                         p("These maps depict the death rate by firearms and the suicide death rate for each of the states"),
+                                        h3("Overall Conclusions"),
+                                        p("These maps showcase the diversity of the American States. No matter the statistic being investigated, there is a 
+                                          wide range of values for each of the states.")),
                                     
                             
-                            # Output the two maps
+                            # This is my main panel which contains three seperate tabs to showcase the three diffferent heat maps I created.
                             
                             mainPanel(
                                       tabsetPanel(
@@ -91,12 +104,23 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                    h4("Firearm Morality by State", align = "center"),
                                                    h6("Death rate per 1,000 people", align = "center"),
                                                    plotOutput("firearm_map"),
+                                                   h3("About the Map"),
                                                    p("DO A WRITEUP HERE")),
                                           tabPanel("Suicide Map",
                                                    h4("Suicide Rate by State", align = "center"),
                                                    h6("Death rate per 1,000 people", align = "center"),
                                                    plotOutput("suicide_map"),
-                                                   p("DO A WRITEUP HERE"))
+                                                   h3("About the Map"),
+                                                   p("DO A WRITEUP HERE")),
+                                          tabPanel("Veteran Deaths",
+                                                   h4("Veteran Suicides by State"),
+                                                   plotOutput("veteran_map"),
+                                                   h3("About the Map"),
+                                                   p("This map displays the number of veteran suicides by state by the selcted year. It is important
+                                                     to note that this graph does not use suicide rate, but number of suicides given the data avaliable.
+                                                     It is also important to note that the top three states with the highest number of veteran suicides
+                                                     also the states which contain the highest number of living veterans. They are in order, California,
+                                                     Texas and Florida."))
                                           
                                       ))
 
@@ -130,20 +154,27 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                # Third panel on website, the statistical modeling portion of the project
                
                tabPanel("Is there a correlation?",
+    
                         
                         sidebarLayout(
                             
                             sidebarPanel(
                                 
                                     # Setting up the input for the regression modeling
-                                    
+                                    p("Please select a year to view the analysis from that given year."),
                                     selectInput(inputId = "year2",  
                                                 label = "Select Year", 
                                                 choices = c("2017" = 2017,
                                                             "2016" = 2016,
                                                             "2015" = 2015,
                                                             "2014" = 2014,
-                                                            "2005" = 2005), selected = "a")),
+                                                            "2005" = 2005), selected = "a"),
+                            h4("Conclusions from Statistical Analysis"),
+                            p("In conclusion, it seems each state has a very different relationship with the data. The model being used
+                          explores the relationship between the suicide rate, the year, and the firearm death rate. I hypothesized that there would
+                          be a positive correlation between the suicide rate and firearm death rate, as ~70% of suicides use a firearm. However, 
+                          I found the relationship to be very different state by state. Furthermore, I found that how well the data fit the model had a 
+                          very high level of variance on a state by state breakdown. Each panel on the right will provide more in depth information.")),
                             
                             # Adding a panel where the user can choose which graph to view
                         
@@ -173,7 +204,12 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                         h3("Number of Veteran Suicides Per Year", align = "center"),
                         plotOutput("veteran_linegraph", height = "300px"), 
                         h3("Number of Living Veterans Per Year", align = "center"),
-                        plotOutput("veteran_linegraph2", height = "200px")
+                        plotOutput("veteran_linegraph2", height = "200px"),
+                        br(),
+                        br(),
+                        h3("Conclusions from the Data", align = "center"),
+                        p("The number of living veterans in the United States has begun a slow but steady decline ever since."),
+                        includeMarkdown("veteran_info.md")
                ),
                
                # Including the About page info here
@@ -187,7 +223,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 
 
 
-# SERVER SIDE OF APP
+#### SHINY SERVER ####
 
 server <- function(input, output) {
     
@@ -197,7 +233,7 @@ server <- function(input, output) {
     output$gun_pic <- renderText({
         c(
             '<img src="',
-            "https://static01.nyt.com/images/2015/12/14/opinion/14mon1/14mon1-superJumbo.jpg?quality=90&auto=webp",
+            "https://static01.nyt.com/images/2015/12/14/opinion/14mon1/14mon1-superJumbo.jpg?quality=90&auto=webp", width="200", height="40",
             '">')
         
     })
@@ -234,6 +270,7 @@ server <- function(input, output) {
                                           geom_polygon(color = "gray90", size = 0.1) +
                                           coord_map(projection = "albers", 
                                                     lat0 = 39, lat1 = 45) + 
+                                         labs(fill = "Rate per 1,000") +
                                           theme_map() + 
                                          
                                          # Setting the coloring of the states with the max as the max for that category
@@ -264,14 +301,13 @@ server <- function(input, output) {
                                          
                                          scale_fill_gradient(low = "#96d497",
                                                              high = "#006e02",
-                                                             limits = c(0,500)) +
+                                                             limits = c(0,600)) +
                                          
                                          # Adding titles 
-                                              labs(fill = "Legend") +
+                                              labs(fill = "Deaths") +
                                          theme(legend.position = "right",
                                                plot.title = element_text(hjust = 0.5))
     )
-    
     
     
     
@@ -360,6 +396,8 @@ server <- function(input, output) {
                      y = "Deaths",
                      caption = "Deaths are an average from 2012-2014")
             
+        # Data broken down by intent    
+            
         } else if(input$choice == "intent") {
             
             data_538 %>% 
@@ -381,11 +419,13 @@ server <- function(input, output) {
                      y = "Deaths",
                      caption = "Deaths are an average from 2012-2014")
             
+        # Data broken down by age
+            
         } else if(input$choice == "age") {
             
             data_538 %>% 
                 
-                # filtering data
+                # filtering data for age
                 
                 filter(intent == "X") %>% 
                 filter(age != "X") %>% 
@@ -406,7 +446,7 @@ server <- function(input, output) {
         })
     
  
-# Plotting the veteran data
+# This graph depicts the number of veteran suicides, in total, and broken down by gender format
     
     output$veteran_linegraph <- renderPlot({
         veteran_data %>% 
@@ -422,6 +462,8 @@ server <- function(input, output) {
                  fill = "Gender")
     })
     
+    # Creating a linegraph which comprises the number of living veterans in the United States for the few years data was publically
+    # avaliable on the Census's website
     
     output$veteran_linegraph2 <- renderPlot({
         veteran_small %>% 
@@ -438,10 +480,9 @@ server <- function(input, output) {
     })
     
                                       
-                                      
-    
+                        
 }
 
-# Running  the application 
+#### RUN APP ####
 
 shinyApp(ui = ui, server = server)
