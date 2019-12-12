@@ -68,9 +68,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                 column(4),
                                 column(4,img(src='gun_picture.jpg', align = "center", height = "75%", width = "100%")),
                                 ),
-                        h2("Welcome.", align = "center"),
+                        h2("Welcome", align = "center"),
                         p("This project serves to explore the relationship between guns and suicides, with a highlight on the current epidemic of 
-                          Veteran suicides in the United States.")),
+                          Veteran suicides in the United States.", align = "center")),
                
                tabPanel("Maps",
                         
@@ -105,15 +105,21 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                    h6("Death rate per 1,000 people", align = "center"),
                                                    plotOutput("firearm_map"),
                                                    h3("About the Map"),
-                                                   p("DO A WRITEUP HERE")),
+                                                   p("Throughout the years the overall trend of of firearm death rate for most of the states is that
+                                                     of an increase. This is especially noticible in states in the Southeast of the United states, and
+                                                     in Colorado as well."),
+                                                   h4("Piechart depicting intents in firearm deaths", align = "center"),
+                                                   plotOutput("piechart_firearm")),
                                           tabPanel("Suicide Map",
                                                    h4("Suicide Rate by State", align = "center"),
                                                    h6("Death rate per 1,000 people", align = "center"),
                                                    plotOutput("suicide_map"),
                                                    h3("About the Map"),
-                                                   p("DO A WRITEUP HERE")),
+                                                   p("There seems to be an increasing number of suicides across the states throughout the years as seen
+                                                     in this map and linegraph.")),
                                           tabPanel("Veteran Deaths",
-                                                   h4("Veteran Suicides by State"),
+                                                   h4("Veteran Suicides by State", align = "center"),
+                                                   h6("Number of Death", align = "center"),
                                                    plotOutput("veteran_map"),
                                                    h3("About the Map"),
                                                    p("This map displays the number of veteran suicides by state by the selcted year. It is important
@@ -139,13 +145,15 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                             sidebarPanel(
                         
                                     # Including a tab so people can choose how to break down the graphic
-                                    
+                                p("Choose how to break down the total population deaths"),
                                     selectInput(inputId = "choice",  
                                                 label = "View deaths by:", 
                                                 choices = c("Gender" = "gender",
                                                             "Intent" = "intent",
                                                             "Age" = "age"), selected = "gender"),
-                                    p("Choose how to break down the total population deaths")),
+                                h4("Conclusions"),
+                                p("The various breakdowns tell a lot about each of the races. As you can see, the majority of people who die
+                                  by firearms in the United States are white males.")),
                                     
                         mainPanel(           
                         plotOutput("death_by_race")))
@@ -161,6 +169,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                             sidebarPanel(
                                 
                                     # Setting up the input for the regression modeling
+                                
                                     p("Please select a year to view the analysis from that given year."),
                                     selectInput(inputId = "year2",  
                                                 label = "Select Year", 
@@ -170,6 +179,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                             "2014" = 2014,
                                                             "2005" = 2005), selected = "a"),
                             h4("Conclusions from Statistical Analysis"),
+                            
+                            # Writing the overall analysis for the various graphs, making note of what to look for
+                            
                             p("In conclusion, it seems each state has a very different relationship with the data. The model being used
                           explores the relationship between the suicide rate, the year, and the firearm death rate. I hypothesized that there would
                           be a positive correlation between the suicide rate and firearm death rate, as ~70% of suicides use a firearm. However, 
@@ -212,7 +224,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                         includeMarkdown("veteran_info.md")
                ),
                
-               # Including the About page info here
+               # Including the About page info here. It is a markdown file which is simply rendered on the shiny app
                
                tabPanel("About",
                         includeMarkdown("about.md")
@@ -228,13 +240,13 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 server <- function(input, output) {
     
     
-    # Image output
+    # Image output for the front page
     
     output$gun_pic <- renderText({
-        c(
-            '<img src="',
-            "https://static01.nyt.com/images/2015/12/14/opinion/14mon1/14mon1-superJumbo.jpg?quality=90&auto=webp", width="200", height="40",
-            '">')
+        c('<img src="',
+            "https://static01.nyt.com/images/2015/12/14/opinion/14mon1/14mon1-superJumbo.jpg?quality=90&auto=webp",
+            width = "200",
+            height = "40",'">')
         
     })
     
@@ -394,7 +406,8 @@ server <- function(input, output) {
                 labs(title = "Total Gun Deaths By Race",
                      x = "Race",
                      y = "Deaths",
-                     caption = "Deaths are an average from 2012-2014")
+                     caption = "Deaths are an average from 2012-2014",
+                     fill = "Gender")
             
         # Data broken down by intent    
             
@@ -417,7 +430,8 @@ server <- function(input, output) {
                 labs(title = "Total Gun Deaths By Race",
                      x = "Race",
                      y = "Deaths",
-                     caption = "Deaths are an average from 2012-2014")
+                     caption = "Deaths are an average from 2012-2014",
+                     fill = "Intent")
             
         # Data broken down by age
             
@@ -440,10 +454,40 @@ server <- function(input, output) {
                 labs(title = "Total Gun Deaths By Race",
                      x = "Race",
                      y = "Deaths",
-                     caption = "Deaths are an average from 2012-2014")
+                     caption = "Deaths are an average from 2012-2014",
+                     fill = "Age")
         }
         
         })
+    
+    
+    # Creating piecharts to acompany the other charts
+    
+    
+    output$piechart_firearm <- renderPlot({
+        
+        total_firearm_deaths <- 33599
+        
+        data_538 %>% 
+            # filtering data
+            filter(intent != "X") %>% 
+            filter(age == "X") %>% 
+            filter(race == "X") %>% 
+            filter(gender == "X") %>% 
+            group_by(intent) %>% 
+            mutate(count = sum(deaths)) %>% 
+            mutate(percent = count/total_firearm_deaths) %>% 
+            
+            ggplot(aes(x = "", fill = intent, y = percent)) +
+            geom_bar(width = 1, stat = "identity") +
+            coord_polar("y", start = 0) +
+            theme_void() +
+            geom_text(aes(label = paste0(round(percent*100), "%")),
+                      position = position_stack(vjust = 0.5)) +
+            labs(fill = "Intent")
+        
+        
+    })
     
  
 # This graph depicts the number of veteran suicides, in total, and broken down by gender format

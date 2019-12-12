@@ -24,7 +24,15 @@ The data about Veteran's mental health came from [here](/https://www.mentalhealt
 
 Code and data behind FiveThirtyEight's Gun Deaths in America project can be found [here] (/https://data.world/azel/gun-deaths-in-america/workspace/file?filename=README.md).
 
-Graphic Art from First Page: [Center for Disease Control and Prevention](/https://www.cdc.gov/ViolencePrevention/suicide/index.html),
-                          https://www.nytimes.com/2019/11/11/magazine/survivor-guilt-veteran.html")),
+Interesting New York Times Opinion Pieces:
+ [Survivor's Guilt](/https://www.nytimes.com/2019/11/11/magazine/survivor-guilt-veteran.html")
+
+
+
+Graphic Art from First Page: 
+
+[Center for Disease Control and Prevention](/https://www.cdc.gov/ViolencePrevention/suicide/index.html)
+                          
+[National Institutes of Mental Health](/https://www.nimh.nih.gov/health/publications/suicide-faq/index.shtml)
 
 Gov1005: Data at Harvard University Fall 2019 taught by David Kane
