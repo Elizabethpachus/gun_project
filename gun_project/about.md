@@ -22,17 +22,21 @@ The data about Veteran's mental health came from [here](/https://www.mentalhealt
 
 # Acknowledgements
 
-Code and data behind FiveThirtyEight's Gun Deaths in America project can be found [here] (/https://data.world/azel/gun-deaths-in-america/workspace/file?filename=README.md).
+Gov1005: Data taught by David Kane
+
+GenEd 1050: Medicine & Conflict: The History and Ethics of Healing in Politcal Turmoil taught by Soha Bayoumi
+
+Code and data behind FiveThirtyEight's Gun Deaths in America project can be found [here](/https://data.world/azel/gun-deaths-in-america/workspace/file?filename=README.md).
 
 Interesting New York Times Opinion Pieces:
+
+
  [Survivor's Guilt](/https://www.nytimes.com/2019/11/11/magazine/survivor-guilt-veteran.html")
-
-
-
-Graphic Art from First Page: 
+ 
+ [Front Page Graphic](/https://www.nytimes.com/2017/01/09/opinion/the-hidden-gun-epidemic-suicides.html)
 
 [Center for Disease Control and Prevention](/https://www.cdc.gov/ViolencePrevention/suicide/index.html)
                           
 [National Institutes of Mental Health](/https://www.nimh.nih.gov/health/publications/suicide-faq/index.shtml)
 
-Gov1005: Data at Harvard University Fall 2019 taught by David Kane
+

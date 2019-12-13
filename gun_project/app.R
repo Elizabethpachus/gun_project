@@ -64,9 +64,13 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                         
                         # Creating a header to my home page with various graphics 
                         
+                        # Centering an image on the front page  
+                        
                         fluidRow(
-                                column(4),
-                                column(4,img(src='gun_picture.jpg', align = "center", height = "75%", width = "100%")),
+                                column(2),
+                                column(8, img(src = 'veteran_gun.jpg', align = "center", height = "100%", width = "100%"),
+                                       p("Source: New York Times", align = "right")),
+                                column(2)
                                 ),
                         h2("Welcome", align = "center"),
                         p("This project serves to explore the relationship between guns and suicides, with a highlight on the current epidemic of 
@@ -233,25 +237,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 )
 
 
-
-
 #### SHINY SERVER ####
 
 server <- function(input, output) {
     
-    
-    # Image output for the front page
-    
-    output$gun_pic <- renderText({
-        c('<img src="',
-            "https://static01.nyt.com/images/2015/12/14/opinion/14mon1/14mon1-superJumbo.jpg?quality=90&auto=webp",
-            width = "200",
-            height = "40",'">')
-        
-    })
-    
-    
-    
+
     # Creating the map graphic on the home page, the first graphic which lists the firearm death rate per state
     
     output$firearm_map <- renderPlot(ggplot(data = map_data_app[map_data_app$year == input$year,],
