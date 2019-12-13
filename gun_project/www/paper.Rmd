@@ -1,0 +1,24 @@
+---
+title: "Exploring Firearms, Suicides, and Veterans"
+output: pdf_document
+---
+
+# Introduction
+
+
+
+```{r}
+
+```
+
+
+Methods
+
+
+Results
+
+
+Conclusions
+
+
+References

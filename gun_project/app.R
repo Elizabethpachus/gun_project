@@ -73,8 +73,12 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                 column(2)
                                 ),
                         h2("Welcome", align = "center"),
-                        p("This project serves to explore the relationship between guns and suicides, with a highlight on the current epidemic of 
-                          Veteran suicides in the United States.", align = "center")),
+                        
+                        # Adding project overview here:
+                        
+                        p("This project investigates the correlation between suicide rate and firearm death rates 
+                          while also exploring the various groups of people who are being primarily affected. Specifically,
+                          I look at veteran suicide rates over the years and any trends which appear.", align = "center")),
                
                tabPanel("Maps",
                         
@@ -112,7 +116,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                    p("Throughout the years the overall trend of of firearm death rate for most of the states is that
                                                      of an increase. This is especially noticible in states in the Southeast of the United states, and
                                                      in Colorado as well."),
-                                                   h4("Piechart depicting intents in firearm deaths", align = "center"),
+                                                   h4("Intent in Firearm Deaths", align = "center"),
+                                                   h3("Most Firearm Deaths are Caused by Suicide", align = "center"),
+                                                   p(""),
                                                    plotOutput("piechart_firearm")),
                                           tabPanel("Suicide Map",
                                                    h4("Suicide Rate by State", align = "center"),
@@ -120,7 +126,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                    plotOutput("suicide_map"),
                                                    h3("About the Map"),
                                                    p("There seems to be an increasing number of suicides across the states throughout the years as seen
-                                                     in this map and linegraph.")),
+                                                     in this map and linegraph."),
+                                                   p(""),
+                                                    h3("Gender Breakdown of Suicides in America", align = "center"),
+                                                    h4("Men make up an Overwhelming Percentage of Suicide Deaths"),
+                                                    plotOutput("piechart_suicide")),
                                           tabPanel("Veteran Deaths",
                                                    h4("Veteran Suicides by State", align = "center"),
                                                    h6("Number of Death", align = "center"),
@@ -231,7 +241,27 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                # Including the About page info here. It is a markdown file which is simply rendered on the shiny app
                
                tabPanel("About",
+                        h3("Walkthrough of Website"),
+                        
+                        # Adding video to website and centering it using fluid rows.
+                        
+                        fluidRow(
+                            column(2),
+                            column(4, tags$video(src = "test.mp4",
+                                                 type = "vide/mp4",
+                                                 align = "center",
+                                                 height = "300px",
+                                                 controls = "controls",
+                                                 align = "center")),
+                            column(2)
+                        ),
+                        p(''),
+                        
+                        # I did my explanation and typing seperaley in a MD file because I think its much easier
+                        # to type long sections of text there. I linked the file below, and I think it keeps my code clean as well.
+                        
                         includeMarkdown("about.md")
+                       
                )
     )
 )
@@ -459,7 +489,10 @@ server <- function(input, output) {
         total_firearm_deaths <- 33599
         
         data_538 %>% 
-            # filtering data
+            
+            # filtering data to be broken down by intent. This data source had an interesting way of formatting
+            # the data which made it trickly to plot the way I wanted to.
+            
             filter(intent != "X") %>% 
             filter(age == "X") %>% 
             filter(race == "X") %>% 
@@ -468,13 +501,49 @@ server <- function(input, output) {
             mutate(count = sum(deaths)) %>% 
             mutate(percent = count/total_firearm_deaths) %>% 
             
+            # Piping it into ggplot
+            
             ggplot(aes(x = "", fill = intent, y = percent)) +
             geom_bar(width = 1, stat = "identity") +
             coord_polar("y", start = 0) +
             theme_void() +
-            geom_text(aes(label = paste0(round(percent*100), "%")),
-                      position = position_stack(vjust = 0.5)) +
+            geom_text(aes(x = c(1, 1, 1.2, 1.5),label = paste0(round(percent*100), "%")),
+                      position = position_stack(vjust = 0.5),
+                      size = 7) +
             labs(fill = "Intent")
+        
+        
+    })
+    
+    
+    # Creating suicide pie chart, specifically broken down by gender
+    
+    output$piechart_suicide <- renderPlot({
+        
+        total_suicide_deaths <- 21058
+        
+        data_538 %>% 
+            
+            # filtering data
+            
+            filter(intent == "Suicide") %>% 
+            filter(age == "X") %>% 
+            filter(race == "X") %>% 
+            filter(gender != "X") %>% 
+            group_by(gender) %>% 
+            mutate(count = sum(deaths)) %>% 
+            mutate(percent = count/total_suicide_deaths) %>% 
+            
+            # Piping it into ggplot
+            
+            ggplot(aes(x = "", fill = gender, y = percent)) +
+            geom_bar(width = 1, stat = "identity") +
+            coord_polar("y", start = 0) +
+            theme_void() +
+            geom_text(aes(label = paste0(round(percent*100), "%")),
+                      position = position_stack(vjust = 0.5), size = 7) +
+            labs(fill = "Gender")
+        
         
         
     })
@@ -512,7 +581,6 @@ server <- function(input, output) {
                  y = "Number of Living Veterans",
                  fill = "Gender")
     })
-    
                                       
                         
 }
