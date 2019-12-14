@@ -148,7 +148,6 @@ final_data_bootstrap <- final_data_stats %>%
             mean_coefficient = mean(estimate))
 
 
-
 # OUTPUT
 # Writing them out into rds files in the rds_files app
 

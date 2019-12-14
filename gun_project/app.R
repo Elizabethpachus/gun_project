@@ -116,9 +116,12 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                    p("Throughout the years the overall trend of of firearm death rate for most of the states is that
                                                      of an increase. This is especially noticible in states in the Southeast of the United states, and
                                                      in Colorado as well."),
-                                                   h4("Intent in Firearm Deaths", align = "center"),
-                                                   h3("Most Firearm Deaths are Caused by Suicide", align = "center"),
-                                                   p(""),
+                               
+                                                   br(),
+                   
+                                                   h3("Intent in Firearm Deaths", align = "center"),
+                                                   h4("Most Firearm Deaths are Caused by Suicide", align = "center"),
+                                                   p(" "),
                                                    plotOutput("piechart_firearm")),
                                           tabPanel("Suicide Map",
                                                    h4("Suicide Rate by State", align = "center"),
@@ -127,9 +130,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                    h3("About the Map"),
                                                    p("There seems to be an increasing number of suicides across the states throughout the years as seen
                                                      in this map and linegraph."),
-                                                   p(""),
+                               
+                                                   br(),
+                         
                                                     h3("Gender Breakdown of Suicides in America", align = "center"),
-                                                    h4("Men make up an Overwhelming Percentage of Suicide Deaths"),
+                                                    h4("Men make up an Overwhelming Percentage of Suicide Deaths", align = "center"),
                                                     plotOutput("piechart_suicide")),
                                           tabPanel("Veteran Deaths",
                                                    h4("Veteran Suicides by State", align = "center"),
@@ -160,17 +165,24 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                         
                                     # Including a tab so people can choose how to break down the graphic
                                 p("Choose how to break down the total population deaths"),
+                                p("Data is an average from 2012-2014"),
                                     selectInput(inputId = "choice",  
                                                 label = "View deaths by:", 
                                                 choices = c("Gender" = "gender",
                                                             "Intent" = "intent",
-                                                            "Age" = "age"), selected = "gender"),
+                                                            "Age" = "age",
+                                                            "Race" = "race"), selected = "gender"),
                                 h4("Conclusions"),
                                 p("The various breakdowns tell a lot about each of the races. As you can see, the majority of people who die
                                   by firearms in the United States are white males.")),
                                     
                         mainPanel(           
-                        plotOutput("death_by_race")))
+                        plotOutput("death_by_race"),
+                        h3("Conclusions"),
+                        p("As you can see from the varying graphs above, there is a lot of information to be gained from the
+                          various categorical breakdowns above. For example, males account for a majority of deaths, most people
+                          dying from a firearm are dying from suicide, the largest age bracket facing deaths is 35-65, and white americans
+                          make up most of the deaths."))),
                ),
                
                # Third panel on website, the statistical modeling portion of the project
@@ -197,10 +209,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                             # Writing the overall analysis for the various graphs, making note of what to look for
                             
                             p("In conclusion, it seems each state has a very different relationship with the data. The model being used
-                          explores the relationship between the suicide rate, the year, and the firearm death rate. I hypothesized that there would
+                          explores the relationship between of suicide rate and year on firearm death rate. I hypothesized that there would
                           be a positive correlation between the suicide rate and firearm death rate, as ~70% of suicides use a firearm. However, 
-                          I found the relationship to be very different state by state. Furthermore, I found that how well the data fit the model had a 
-                          very high level of variance on a state by state breakdown. Each panel on the right will provide more in depth information.")),
+                          I found the relationship to be very different state by state, with only some states matching it. Furthermore, I found that how well the data fit the model had a 
+                          very high level of variance on a state by state breakdown. Each panel on the right will provide more in depth information on the
+                              graphic it displa.")),
                             
                             # Adding a panel where the user can choose which graph to view
                         
@@ -210,16 +223,26 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                           # Graph displaying the correlation between firearm death rate averages and 
                                           # suicide rates per state
                                           
-                                          tabPanel("Plot", plotOutput("suicide_plot")),
+                                          tabPanel("Plot", 
+                                                   h3("Firearm Death Rate by Suicide Rate", align = "center"),
+                                                   h4("There seems to be a positive trend", align = "center"),
+                                                   plotOutput("suicide_plot"),
+                                                   h5("Rate is per 1,000 people, data from C.D.C", align = "right")),
                                           
                                           # This graph shows the coefficents which show the correlation between firearm 
                                           # and suicide rate per state
                                           
-                                          tabPanel("Correlation?", plotOutput("correlation_plot", height = "700px")),
+                                          tabPanel("Correlation?",
+                                                   h3("What is the Correlation Between Firearm Death Rate, Suicide Rate and Year?", align = "center"),
+                                                   h4("A Wide Variety of Correlations Among the States", align = "center"),
+                                                   plotOutput("correlation_plot", height = "700px")),
                                           
                                           # This graph shows the r squared value per state
                                           
-                                          tabPanel("Uncertainty", plotOutput("uncertainty_plot", height = "700px"))
+                                          tabPanel("Uncertainty",
+                                                   h3("How Well Does the Data Match the Model?", align = "center"),
+                                                   h4("There is also a Wide Variety in Uncertainty Among the States", align = "center"),
+                                                   plotOutput("uncertainty_plot", height = "700px"))
                                       ))
                         )
                ),
@@ -247,17 +270,15 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                         
                         fluidRow(
                             column(2),
-                            column(4, tags$video(src = "test.mp4",
-                                                 type = "vide/mp4",
-                                                 align = "center",
-                                                 height = "300px",
-                                                 controls = "controls",
-                                                 align = "center")),
+                            
+                            # Embeding my video as a Youtube Video here:
+                            
+                            column(4, HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/Ka2pWqXS1WA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
                             column(2)
                         ),
                         p(''),
                         
-                        # I did my explanation and typing seperaley in a MD file because I think its much easier
+                        # I did my explanation and typing seperatlet in a MD file because I think its much easier
                         # to type long sections of text there. I linked the file below, and I think it keeps my code clean as well.
                         
                         includeMarkdown("about.md")
@@ -348,20 +369,17 @@ server <- function(input, output) {
     # I am trying to answer the question, does suicide death rate impact firearm death rate?
     
     output$suicide_plot <- renderPlot(ggplot(data = suicide_data_app[suicide_data_app$year == input$year2,],
-                                             aes(x = suicide_rate, y = deaths_year)) +
+                                             aes(x = suicide_rate, y = rate_per_1000)) +
                                           geom_point() +
                                           
                                           # Setting limits for the graphs so that even as the year changes the 
                                           # actual scales will remain the same to make it easier to differentiate 
                                           # between the years
-                                          
-                                          scale_y_continuous(limits = c(0,3300)) +
+                          
                                           scale_x_continuous(limits = c(8,30)) +
                                           geom_smooth(method = "lm") +
-                                          labs(
-                                              title = "Deaths per Year by Guns by Suicide Rate of State",
-                                              x = "Suicide Rate per 1,000",
-                                              y = "Deaths per Year"
+                                          labs(x = "Suicide Rate",
+                                              y = "Firearm Death Rate"
                                           ) +
                                           theme_minimal()
                                       
@@ -376,8 +394,7 @@ server <- function(input, output) {
                                            geom_jitter(width = 0.03,
                                                        height = 0.01) + 
                                            scale_y_discrete(expand = expand_scale(mult = 0, add = 0)) +
-                                           labs(title = "Uncertainty of R Squared Value by State",
-                                                subttile = "What is the uncertainity with this model?",
+                                           labs(
                                                 x = 'R Square Value',
                                                 y = "State") +
                                            theme_minimal() +
@@ -392,7 +409,7 @@ server <- function(input, output) {
                                                             y = reorder(state_name, mean_coefficient),
                                                             color = state_name)) + 
                                            geom_point() + 
-                                           labs(title = "What is the Correlation Between Firearm Death Rate and Suicide Rate?",
+                                           labs(
                                                 x = 'Intercept',
                                                 y = "State") +
                                            theme_minimal() +
@@ -420,14 +437,15 @@ server <- function(input, output) {
                 
                 # ggplot
                 
-                ggplot(aes(x = race, fill = gender, group = gender, y = deaths)) +
+                ggplot(aes(x = gender, fill = gender, group = gender, y = deaths)) +
                 geom_col(position = position_dodge(width = 0.9)) +
                 theme_minimal() +
-                labs(title = "Total Gun Deaths By Race",
+                labs(title = "Total Firearm Deaths by Gender",
                      x = "Race",
                      y = "Deaths",
-                     caption = "Deaths are an average from 2012-2014",
-                     fill = "Gender")
+                     fill = "Gender") +
+                theme(text = element_text(size = 20),
+                      plot.title = element_text(hjust = 0.5))
             
         # Data broken down by intent    
             
@@ -444,14 +462,15 @@ server <- function(input, output) {
                 
                 # ggplot
                 
-                ggplot(aes(x = race, fill = intent, group = intent, y = deaths)) +
+                ggplot(aes(x = intent, fill = intent, group = intent, y = deaths)) +
                 geom_col(position = position_dodge(width = 0.9)) +
                 theme_minimal() +
-                labs(title = "Total Gun Deaths By Race",
+                labs(title = "Total Firearm Deaths By Intent",
                      x = "Race",
                      y = "Deaths",
-                     caption = "Deaths are an average from 2012-2014",
-                     fill = "Intent")
+                     fill = "Intent") +
+                theme(text = element_text(size = 20),
+                      plot.title = element_text(hjust = 0.5))
             
         # Data broken down by age
             
@@ -468,14 +487,39 @@ server <- function(input, output) {
                 
                 # ggplot
                 
-                ggplot(aes(x = race, fill = age, group = age, y = deaths)) +
+                ggplot(aes(x = age, fill = age, group = age, y = deaths)) +
                 geom_col(position = position_dodge(width = 0.9)) +
                 theme_minimal() +
-                labs(title = "Total Gun Deaths By Race",
-                     x = "Race",
+                labs(title = "Total Firearm Deaths By Age",
+                     x = "Age",
                      y = "Deaths",
-                     caption = "Deaths are an average from 2012-2014",
-                     fill = "Age")
+                     fill = "Age") +
+                theme(text = element_text(size = 20),
+                      plot.title = element_text(hjust = 0.5))
+        }
+        
+        else if(input$choice == "race") {
+            
+            data_538 %>% 
+                
+                # filtering data for age
+                
+                filter(intent == "X") %>% 
+                filter(age == "X") %>% 
+                filter(race != "X") %>% 
+                filter(gender == "X") %>% 
+                
+                # ggplot
+                
+                ggplot(aes(x = race, fill = race, group = race, y = deaths)) +
+                geom_col(position = position_dodge(width = 0.9)) +
+                theme_minimal() +
+                labs(title = "Total Firearm Deaths By Age",
+                     x = "Age",
+                     y = "Deaths",
+                     fill = "Age") +
+                theme(text = element_text(size = 20),
+                      plot.title = element_text(hjust = 0.5))
         }
         
         })
@@ -512,7 +556,6 @@ server <- function(input, output) {
                       size = 7) +
             labs(fill = "Intent")
         
-        
     })
     
     
@@ -543,8 +586,6 @@ server <- function(input, output) {
             geom_text(aes(label = paste0(round(percent*100), "%")),
                       position = position_stack(vjust = 0.5), size = 7) +
             labs(fill = "Gender")
-        
-        
         
     })
     
