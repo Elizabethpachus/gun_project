@@ -227,7 +227,14 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                                    h3("Firearm Death Rate by Suicide Rate", align = "center"),
                                                    h4("There seems to be a positive trend", align = "center"),
                                                    plotOutput("suicide_plot"),
-                                                   h5("Rate is per 1,000 people, data from C.D.C", align = "right")),
+                                                   h5("Rate is per 1,000 people, data from C.D.C", align = "right"),
+                                                   h4("Conclusions"),
+                                                   p("The first graph depicts the scatter plot correlation between the suicide death rate 
+                                                     and the firearm death rate for a given state. A linear regression model in the form of
+                                                     a line was plotted. The data presents a positive slope, indicating that there is a positive
+                                                     correlation between the suicide rate and the firearm death rate. However, the data points are 
+                                                     scattered about the plot and each state seems to have a very different correlation with the variables 
+                                                     and the year.")),
                                           
                                           # This graph shows the coefficents which show the correlation between firearm 
                                           # and suicide rate per state
@@ -235,14 +242,35 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                           tabPanel("Correlation?",
                                                    h3("What is the Correlation Between Firearm Death Rate, Suicide Rate and Year?", align = "center"),
                                                    h4("A Wide Variety of Correlations Among the States", align = "center"),
-                                                   plotOutput("correlation_plot", height = "700px")),
+                                                   plotOutput("correlation_plot", height = "700px"),
+                                                   h4("Conclusions"),
+                                                   p("The Linear Regression Model graphic depicts a wide range in intercept values for the intercepts of the model.
+                                                     The intercepts are plotting on the x axis, and they depict the relationship between the parallel lines which 
+                                                     represent the overall intercept, the slope, and the year. As can be seen in the graph there is a wide variety in 
+                                                     the correlation amongst the states. Some states further to the right on the graph have coefficients which are positive
+                                                     and closer to two or four. The states with the highest average coefficient were Alabama, Missouri, and Rhode Island.
+                                                     This indicates that on average, the suicide rate is correlated with around a 2-3% increase in firearm death rate for
+                                                     that state. On the other hand of the spectrum there are the states which had a negative correlation. The states with 
+                                                     the top three negative correlations were Arizona, California, and Maryland. This indicates that on average, when the 
+                                                     suicide rate increases in that state, the firearm death rate decreases by around 2-3%. All of the other states fall 
+                                                     somewhere in the middle, with the bulk of states falling slightly to the right of 0, indicating a slight positive
+                                                     correlation for most of the state between suicide death rate and firearm death rate.")),
                                           
                                           # This graph shows the r squared value per state
                                           
                                           tabPanel("Uncertainty",
                                                    h3("How Well Does the Data Match the Model?", align = "center"),
                                                    h4("There is also a Wide Variety in Uncertainty Among the States", align = "center"),
-                                                   plotOutput("uncertainty_plot", height = "700px"))
+                                                   plotOutput("uncertainty_plot", height = "700px"),
+                                                   h4("Conclusions"),
+                                                   p("The last graph depicts the R squared value for each of the states. The R squared value indicates how well a model 
+                                                     fits the data. An R squared value of one is ideal because it means that the model fits the data with a one to one 
+                                                     correlation. As can be seen in this graph, there is a wide range in the R squared values. A bootstrap resampling was 
+                                                     performed in order to run 1,oo0 repetitions of the data and get a random sample to test uncertainty. Each state has
+                                                     about the same amount of uncertainty, as told by the length of the colored line. However, how well the data fits the 
+                                                     data varies widely. States like Virginia, North Carolina, and Massachusetts had a very low R squared value indicating 
+                                                     that the model is not very representative of the data from that state. Other states like Washington, Georgia and Alaska 
+                                                     had R squared values closer to one indicating that the model fit the data very well."))
                                       ))
                         )
                ),
@@ -256,8 +284,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                         plotOutput("veteran_linegraph2", height = "200px"),
                         br(),
                         br(),
-                        h3("Conclusions from the Data", align = "center"),
-                        p("The number of living veterans in the United States has begun a slow but steady decline ever since."),
+                        h4("Conclusions from the Data", align = "center"),
+                        p("The number of living veterans in the United States has begun a slow but steady decline ever since. You can see in the graphs
+                          that a significant portion of veterans are male, and this is reflected in their suicide rates as well. Unfortunately as the number
+                          of female veterans increases, so does their suicide rate."),
+                        br(),
                         includeMarkdown("veteran_info.md")
                ),
                
@@ -267,15 +298,15 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                         h3("Walkthrough of Website"),
                         
                         # Adding video to website and centering it using fluid rows.
-                        
                         fluidRow(
                             column(2),
                             
                             # Embeding my video as a Youtube Video here:
                             
-                            column(4, HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/Ka2pWqXS1WA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
+                            column(4, HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/3652ciwXtpY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
                             column(2)
                         ),
+                        
                         p(''),
                         
                         # I did my explanation and typing seperatlet in a MD file because I think its much easier

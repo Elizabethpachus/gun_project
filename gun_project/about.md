@@ -4,6 +4,10 @@ Gun violence in America is one of the most politicized and contriversal topics o
 
 This project involves investigating the American deaths caused by firearms. Specifically, I am interested in exploring the relationship between suicides and firearms in the United States, specifically looking at U.S. Veterans.I also hope to explore the relationship between location and firearm deaths in the country, and have a number of map graphics.
 
+# Statistical Analysis Conclusions
+
+In conclusion, the statistical analysis was only done on a small subset of the data available and with an equation that was purely inspired by curiosity. Based on the general knowledge that suicide accounts for over 2/3 of firearm deaths in the United States, and that the vast majority of suicides use a firearm, I find it likely that the assumptions from some of the states make sense that an increase in suicide rate would lead to an increase in firearm death rate. This is because suicides by a firearm should be under the umbrella category of firearm deaths. However, it is important to note the limitations of the data, specifically the uncertainty graph. Many models did not fit their states well at all, and therefore are not statistically significant enough to count as reliable data points.
+
 # Takeaways and What I Learned:
 
 I had heard talk of the forgotten victims of gun violence in America being suicide victims, but this was the first
@@ -47,6 +51,6 @@ Code and data behind FiveThirtyEight's Gun Deaths in America project can be foun
 
 [Center for Disease Control and Prevention](https://www.cdc.gov/ViolencePrevention/suicide/index.html)
                           
-[National Institutes of Mental Health](https://www.nimh.nih.gov/health/publications/suicide-faq/index.shtml)
+[National Institutes of Mental Health](https://www.nimh.nih.gov/health/publications/suicide-faq/index.html)
 
 

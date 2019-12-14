@@ -1,3 +1,9 @@
+#### PREP ####
+# This document is part of the data cleaning and organizing I did for the project, as well as where
+# the statistical modeling takes part
+# It is also where I write out my rds files into the shiny app folder.
+
+
 # Loading necessary libraries
 
 library(sf)
@@ -107,7 +113,6 @@ veterans <- read_csv("raw-data/veterans.csv") %>%
   clean_names()
 
 
-
 # Adding the veteran data to the map_data
 
 veterans2 <- veterans %>% 
@@ -129,6 +134,7 @@ final_data_stats <- final_data %>%
   rename(nested_data = data) %>% 
   
   # The model is of firearm death rate, as influenced by the suicide rate and year
+  # Code similar to what has been done on psets and exams in the past
   
   mutate(model = map(nested_data, ~ lm(rate_per_1000 ~ suicide_rate + year, data = .x))) %>% 
   mutate(coefficients = map(model, ~ tidy(.x))) %>%
@@ -139,16 +145,17 @@ final_data_stats <- final_data %>%
 
 
 # Data in bootstrap formation of R2 value by state
+# Used 1,000 bootstrap repitions to see what variability is in the data
 
 final_data_bootstrap <- final_data_stats %>% 
   rep_sample_n(size = 50, replace = TRUE, reps = 1000) %>% 
   group_by(replicate, state_name, term) %>% 
-  filter(term == "(Intercept)") %>% 
+  filter(term == "suicide_rate") %>% 
   summarize(mean_rsquared = mean(r.squared),
             mean_coefficient = mean(estimate))
 
 
-# OUTPUT
+#### OUTPUT ####
 # Writing them out into rds files in the rds_files app
 
 write_rds(veterans_living, "gun_project/veterans_living.rds")
