@@ -295,19 +295,20 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                # Including the About page info here. It is a markdown file which is simply rendered on the shiny app
                
                tabPanel("About",
-                        h3("Walkthrough of Website"),
                         
-                        # Adding video to website and centering it using fluid rows.
-                        fluidRow(
-                            column(2),
-                            
-                            # Embeding my video as a Youtube Video here:
-                            
-                            column(4, HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/3652ciwXtpY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-                            column(2)
-                        ),
+                        # Tabbing out the video because it's embaressing
                         
-                        p(''),
+                        # # Adding video to website and centering it using fluid rows.
+                        # fluidRow(
+                        #     column(2),
+                        #     
+                        #     # Embeding my video as a Youtube Video here:
+                        #     
+                        #     column(4, HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/3652ciwXtpY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
+                        #     column(2)
+                        # ),
+                        # 
+                        # p(''),
                         
                         # I did my explanation and typing seperatlet in a MD file because I think its much easier
                         # to type long sections of text there. I linked the file below, and I think it keeps my code clean as well.
@@ -385,7 +386,7 @@ server <- function(input, output) {
                                          
                                          scale_fill_gradient(low = "#96d497",
                                                              high = "#006e02",
-                                                             limits = c(0,600)) +
+                                                             limits = c(0,650)) +
                                          
                                          # Adding titles 
                                               labs(fill = "Deaths") +
@@ -472,7 +473,7 @@ server <- function(input, output) {
                 geom_col(position = position_dodge(width = 0.9)) +
                 theme_minimal() +
                 labs(title = "Total Firearm Deaths by Gender",
-                     x = "Race",
+                     x = "Gender",
                      y = "Deaths",
                      fill = "Gender") +
                 theme(text = element_text(size = 20),
@@ -497,7 +498,7 @@ server <- function(input, output) {
                 geom_col(position = position_dodge(width = 0.9)) +
                 theme_minimal() +
                 labs(title = "Total Firearm Deaths By Intent",
-                     x = "Race",
+                     x = "Intent",
                      y = "Deaths",
                      fill = "Intent") +
                 theme(text = element_text(size = 20),
